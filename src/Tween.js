@@ -113,6 +113,8 @@ TWEEN.Tween = function (object) {
 	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
+  var _stopTime = null;
+  var _stopAffectDuration = null;
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTweens = [];
@@ -121,6 +123,8 @@ TWEEN.Tween = function (object) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _onStopCallback = null;
+	var _onRestartCallback = null;
 
 	this.to = function (properties, duration) {
 
@@ -141,6 +145,11 @@ TWEEN.Tween = function (object) {
 		_isPlaying = true;
 
 		_onStartCallbackFired = false;
+
+		if (_stopTime && _stopTime > _startTime) {
+      var thisDuration = _stopAffectDuration ? _stopAffectDuration : _duration;
+      _stopAffectDuration = thisDuration - (_stopTime - _startTime);
+    }
 
 		_startTime = time !== undefined ? time : TWEEN.now();
 		_startTime += _delayTime;
@@ -172,8 +181,9 @@ TWEEN.Tween = function (object) {
 				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			_valuesStartRepeat[property] = _valuesStart[property] || 0;
-
+			if (null === _stopTime && undefined === _valuesStartRepeat[property]) {
+				_valuesStartRepeat[property] = _valuesStart[property] || 0;
+			}
 		}
 
 		return this;
@@ -188,6 +198,10 @@ TWEEN.Tween = function (object) {
 
 		TWEEN.remove(this);
 		_isPlaying = false;
+
+		if (undefined !== _object) {
+    	_stopTime = TWEEN.now();
+		}
 
 		if (_onStopCallback !== null) {
 			_onStopCallback.call(_object, _object);
@@ -296,6 +310,7 @@ TWEEN.Tween = function (object) {
 		var property;
 		var elapsed;
 		var value;
+		var thisDuration;
 
 		if (time < _startTime) {
 			return true;
@@ -310,7 +325,8 @@ TWEEN.Tween = function (object) {
 			_onStartCallbackFired = true;
 		}
 
-		elapsed = (time - _startTime) / _duration;
+		thisDuration = _stopAffectDuration ? _stopAffectDuration : _duration;
+		elapsed = (time - _startTime) / thisDuration;
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		value = _easingFunction(elapsed);
@@ -389,6 +405,9 @@ TWEEN.Tween = function (object) {
 				} else {
 					_startTime = time + _delayTime;
 				}
+
+				_stopAffectDuration = null;
+        _stopTime = null;
 
 				return true;
 
