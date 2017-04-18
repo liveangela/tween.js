@@ -219,6 +219,26 @@ TWEEN.Tween = function (object) {
 
 	};
 
+	this.restart = function () {
+		
+		if (!_isPlaying) {
+			TWEEN.add(this);
+			_isPlaying = true;
+		}
+
+		this.update(_startTime);
+
+		_startTime = TWEEN.now();
+		_startTime += _delayTime;
+
+		if (_onRestartCallback !== null) {
+			_onRestartCallback.call(_object, _object);
+		}
+
+		return this;
+
+	};
+
 	this.stopChainedTweens = function () {
 
 		for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
