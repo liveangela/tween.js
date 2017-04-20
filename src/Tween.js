@@ -292,11 +292,14 @@ TWEEN.Tween = function (object) {
 
 	this.chain = function () {
 
-		if (1 === arguments.length && typeof (arguments[0]) === 'array') {
-			_chainedTweens = arguments[0];
-		} else {
-			_chainedTweens = arguments;
-		}
+		_chainedTweens = arguments;
+		return this;
+
+	};
+
+	this.chainArray = function (array) {
+
+		_chainedTweens = array;
 		return this;
 
 	};
