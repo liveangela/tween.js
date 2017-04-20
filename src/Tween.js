@@ -444,6 +444,8 @@ TWEEN.Tween = function (object) {
 
 			} else {
 
+				_isPlaying = false;
+
 				if (_onCompleteCallback !== null) {
 
 					_onCompleteCallback.call(_object, _object);
