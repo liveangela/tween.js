@@ -140,6 +140,10 @@ TWEEN.Tween = function (object) {
 
 	this.start = function (time) {
 
+		if (_isPlaying) {
+			return this;
+		}
+
 		TWEEN.add(this);
 
 		_isPlaying = true;
